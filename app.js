@@ -11,6 +11,13 @@
   const whatsapp = (message) => `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   const clean = (value) => value.replace(/[<>`{}\\]/g, "").replace(/\s+/g, " ").trim().slice(0, 180);
 
+  document.querySelectorAll("img[data-fallback]").forEach((image) => image.addEventListener("error", () => {
+    const fallback = image.dataset.fallback;
+    if (!fallback) return;
+    delete image.dataset.fallback;
+    image.src = fallback;
+  }));
+
   const menuButton = document.querySelector(".menu-button");
   const navLinks = document.querySelector(".nav-links");
   menuButton?.addEventListener("click", () => {
