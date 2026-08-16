@@ -32,7 +32,7 @@
     "Ropa": ["fashion.webp", "NUEVA COLECCIÓN", "Hola, me interesa la plantilla de Ropa."],
     "Empresas": ["business.webp", "IMPULSA TU NEGOCIO", "Hola, me interesa la plantilla de Empresas."],
     "Postres": ["dessert.webp", "HECHO CON AMOR", "Hola, me interesa la plantilla de Postres."],
-    "Heladería": ["dessert.webp", "TU SABOR FAVORITO", "Hola, me interesa la plantilla de Heladería."]
+    "Heladería": ["template-heladeria.webp", "TU SABOR FAVORITO", "Hola, me interesa la plantilla de Heladería."]
   };
 
   const closeModal = () => document.querySelector(".modal-backdrop")?.remove();
