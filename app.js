@@ -46,19 +46,67 @@
   }, { passive: true });
   window.addEventListener("mouseover", (event) => cursor?.classList.toggle("cursor--active", Boolean(event.target.closest("a, button, input, select"))), { passive: true });
 
-  const templateData = {
-    "Comida rápida": ["burger.webp", "BURGER CLUB", "Hola, me interesa la plantilla de Comida Rápida."],
-    "Ropa": ["fashion.webp", "NUEVA COLECCIÓN", "Hola, me interesa la plantilla de Ropa."],
-    "Empresas": ["business.webp", "IMPULSA TU NEGOCIO", "Hola, me interesa la plantilla de Empresas."],
-    "Postres": ["dessert.webp", "HECHO CON AMOR", "Hola, me interesa la plantilla de Postres."],
-    "Heladería": ["template-heladeria.webp", "TU SABOR FAVORITO", "Hola, me interesa la plantilla de Heladería."]
+  const marketplace = document.querySelector(".marketplace-layout");
+  const filterPanel = document.querySelector(".filter-panel");
+  const filterToggle = document.querySelector(".filter-toggle");
+  const templateGrid = document.querySelector(".marketplace-grid");
+  const resultCount = document.querySelector(".marketplace-count");
+  const sortControl = document.querySelector(".template-sort");
+  const clearFilters = document.querySelector(".clear-filters");
+  const allCards = templateGrid ? [...templateGrid.querySelectorAll(".marketplace-card")] : [];
+
+  const selectedValues = (type) => [...document.querySelectorAll(`[data-filter-type="${type}"]:checked`)].map((input) => input.value);
+  const updateMarketplace = () => {
+    if (!templateGrid) return;
+    const categories = selectedValues("category");
+    const features = selectedValues("feature");
+    const sort = sortControl?.value || "popular";
+    const visible = allCards.filter((card) => {
+      const cardFeatures = (card.dataset.features || "").split("|");
+      return (!categories.length || categories.includes(card.dataset.category)) && (!features.length || features.every((feature) => cardFeatures.includes(feature)));
+    });
+    visible.sort((a, b) => {
+      if (sort === "priority") return Number(b.dataset.priority) - Number(a.dataset.priority);
+      if (sort === "recent") return String(b.dataset.created).localeCompare(String(a.dataset.created));
+      if (sort === "name") return a.querySelector("h3").textContent.localeCompare(b.querySelector("h3").textContent, "es");
+      return Number(b.dataset.popular) - Number(a.dataset.popular) || Number(b.dataset.priority) - Number(a.dataset.priority);
+    });
+    allCards.forEach((card) => { card.hidden = !visible.includes(card); });
+    visible.forEach((card) => templateGrid.appendChild(card));
+    templateGrid.querySelector(".empty-results")?.remove();
+    if (!visible.length) templateGrid.insertAdjacentHTML("beforeend", '<div class="empty-results glass"><span>⌕</span><h3>No encontramos una coincidencia</h3><p>Prueba quitando una característica o limpia los filtros para ver todos los diseños.</p><button type="button" class="empty-clear">Ver todas las plantillas</button></div>');
+    if (resultCount) resultCount.textContent = `${visible.length} ${visible.length === 1 ? "diseño" : "diseños"}`;
+    if (clearFilters) clearFilters.disabled = !(categories.length + features.length);
   };
+  document.querySelectorAll("[data-filter-type]").forEach((input) => input.addEventListener("change", updateMarketplace));
+  sortControl?.addEventListener("change", updateMarketplace);
+  filterToggle?.addEventListener("click", () => {
+    const isOpen = !filterPanel?.hidden;
+    if (filterPanel) filterPanel.hidden = isOpen;
+    marketplace?.classList.toggle("filters-hidden", isOpen);
+    marketplace?.classList.toggle("filters-visible", !isOpen);
+    filterToggle.setAttribute("aria-expanded", String(!isOpen));
+    filterToggle.innerHTML = `<span aria-hidden="true">☷</span>${isOpen ? "Mostrar filtros" : "Ocultar filtros"}`;
+  });
+  const resetMarketplace = () => {
+    document.querySelectorAll("[data-filter-type]").forEach((input) => { input.checked = false; });
+    updateMarketplace();
+  };
+  clearFilters?.addEventListener("click", resetMarketplace);
+  templateGrid?.addEventListener("click", (event) => { if (event.target.closest(".empty-clear")) resetMarketplace(); });
+  document.querySelectorAll("[data-category-shortcut]").forEach((button) => button.addEventListener("click", () => {
+    document.querySelectorAll('[data-filter-type="category"]').forEach((input) => { input.checked = input.value === button.dataset.categoryShortcut; });
+    updateMarketplace();
+    document.querySelector("#seccion-plantillas")?.scrollIntoView({ behavior: "smooth" });
+  }));
 
   const closeModal = () => document.querySelector(".modal-backdrop")?.remove();
   document.querySelectorAll(".template-actions button").forEach((button) => button.addEventListener("click", () => {
     const card = button.closest(".template-card");
     const label = card?.querySelector(".template-info h3")?.textContent?.trim() || "Plantilla";
-    const [image, headline, message] = templateData[label] || templateData["Empresas"];
+    const image = card?.querySelector(".template-preview img")?.getAttribute("src") || "business.webp";
+    const headline = [...(card?.querySelectorAll(".mini-content strong span") || [])].map((line) => line.textContent).join(" ") || label;
+    const message = `Hola CosstalWeb, quiero información sobre la plantilla ${label}.`;
     document.body.insertAdjacentHTML("beforeend", `<div class="modal-backdrop" role="dialog" aria-modal="true"><div class="modal glass"><div class="modal-head"><div><small>VISTA INTERACTIVA</small><h2>${label}</h2></div><button class="modal-close" aria-label="Cerrar">×</button></div><div class="demo-frame demo-frame--desktop"><div class="demo-site" style="background-image:linear-gradient(90deg,rgba(0,0,0,.65),rgba(0,0,0,.08)),url('${image}');background-size:cover;background-position:center"><nav style="color:#fff"><b>${label}.</b><span>Inicio &nbsp; Menú &nbsp; Contacto</span></nav><main style="color:#fff"><small>SANTO DOMINGO · ECUADOR</small><h3><span>${headline}</span></h3><p>Una experiencia creada para atraer y convertir.</p></main></div></div><div class="modal-foot"><span>El diseño final se personaliza con tu marca y contenido.</span><a class="button button--primary" href="${whatsapp(message)}" target="_blank" rel="noopener noreferrer">Quiero esta dirección ↗</a></div></div></div>`);
     document.querySelector(".modal-close")?.addEventListener("click", closeModal);
     document.querySelector(".modal-backdrop")?.addEventListener("click", (event) => event.target.classList.contains("modal-backdrop") && closeModal());
