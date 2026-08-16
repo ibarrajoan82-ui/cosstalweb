@@ -1,4 +1,23 @@
 (() => {
+  const splash = document.querySelector(".splash");
+  try {
+    if (sessionStorage.getItem("cosstal-intro")) {
+      splash?.remove();
+    } else {
+      document.body.classList.add("intro-lock");
+      window.setTimeout(() => {
+        splash?.remove();
+        sessionStorage.setItem("cosstal-intro", "1");
+        document.body.classList.remove("intro-lock");
+      }, 2900);
+    }
+  } catch {
+    window.setTimeout(() => {
+      splash?.remove();
+      document.body.classList.remove("intro-lock");
+    }, 2900);
+  }
+
   const phone = "593958807188";
   const whatsapp = (message) => `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   const clean = (value) => value.replace(/[<>`{}\\]/g, "").replace(/\s+/g, " ").trim().slice(0, 180);
