@@ -159,6 +159,7 @@ em { font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
 .marketplace-results { min-width: 0; }
 .template-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
 .template-card { border: 1px solid var(--line); background: var(--surface); border-radius: 24px; overflow: hidden; transition: transform .35s, box-shadow .35s, opacity .25s; display: flex; flex-direction: column; min-width: 0; animation: templateIn .38s cubic-bezier(.2,.75,.25,1) both; }
+.marketplace-card[hidden] { display: none !important; }
 @keyframes templateIn { from { opacity: 0; transform: translateY(14px) scale(.985); } }
 .template-card:hover { transform: translateY(-7px); box-shadow: 0 26px 70px rgba(0,0,0,.13); }
 .template-preview { aspect-ratio: 1.24 / 1; min-height: 240px; background: color-mix(in srgb, var(--accent) 22%, var(--surface)); padding: 22px; position: relative; overflow: hidden; isolation: isolate; }
