@@ -71,7 +71,11 @@
       if (sort === "name") return a.querySelector("h3").textContent.localeCompare(b.querySelector("h3").textContent, "es");
       return Number(b.dataset.popular) - Number(a.dataset.popular) || Number(b.dataset.priority) - Number(a.dataset.priority);
     });
-    allCards.forEach((card) => { card.hidden = !visible.includes(card); });
+    allCards.forEach((card) => {
+      const isVisible = visible.includes(card);
+      card.hidden = !isVisible;
+      card.style.display = isVisible ? "" : "none";
+    });
     visible.forEach((card) => templateGrid.appendChild(card));
     templateGrid.querySelector(".empty-results")?.remove();
     if (!visible.length) templateGrid.insertAdjacentHTML("beforeend", '<div class="empty-results glass"><span>⌕</span><h3>No encontramos una coincidencia</h3><p>Prueba quitando una característica o limpia los filtros para ver todos los diseños.</p><button type="button" class="empty-clear">Ver todas las plantillas</button></div>');
